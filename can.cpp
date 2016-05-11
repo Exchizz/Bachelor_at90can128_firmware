@@ -16,23 +16,22 @@ void can_rx_task(uint8_t my_state){
 		CAN_frame frame;
 		frame.id = 0;
 		frame.msg = 0;
+		frame.dlc = 0;
 
+		frame.dlc = (CANCDMOB & 0x0F);
 		frame.id = ((uint32_t)CANIDT4 >> 3) |  ((uint32_t)CANIDT3 << 5) | ((uint32_t)CANIDT2 << 13) | ((uint32_t)CANIDT1 << 21);
 
+
 		uint64_t temp = 0;
-		for(int i = 7; i >= 0; i--){
+		for(int i = (frame.dlc - 1); i >= 0; i--){
 			temp = CANMSG;
 			frame.msg |= (temp << i*8);
 		}
-		//frame.msg = 0x0123456789ABCDEF;
-		/*
-		*/
-		//add_can_frame_buffer(&frame);
+
 		QueueSend(&Queue_CAN_Rx, &frame);
 		INT_LED_ON_BLUE;
 	} else {
 		INT_LED_OFF_BLUE;
-//		wait( 1 );
 	}
 	CANCDMOB = 8 | (1<<CONMOB1) | (1 << IDE); /* enable rx, max data length */
 	/* restore the current MOb page */
