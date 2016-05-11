@@ -17,19 +17,19 @@ void can_rx_task(uint8_t my_state){
 		frame.id = 0;
 		frame.msg = 0;
 
-		unsigned long int temp_id;
+		uint32_t temp_id = 0;
 
-		temp_id = CANIDT4 >> 3;
-		frame.id |= temp_id;
+		temp_id = CANIDT4;
+		frame.id |= (temp_id >> 3);
 
-		temp_id = CANIDT3 << 5 ;
-		frame.id |= temp_id;
+		temp_id = CANIDT3;
+		frame.id |= (temp_id << 5) ;
 
-		temp_id = CANIDT2 << 8;
-		frame.id |= temp_id;
+		temp_id = CANIDT2;
+		frame.id |= (temp_id << 13);
 
-		temp_id = CANIDT1 << 8;
-		frame.id |= temp_id;
+		temp_id = CANIDT1;
+		frame.id |= (temp_id << 21);
 
 		//frame.id = ( CANIDT4 >> 3 ) | ( CANIDT3 << 5 ) |  ( CANIDT2 << 8 ) | ( CANIDT1 << 8 ); // datasheet www.atmel.com/images/doc7679.pdf
 

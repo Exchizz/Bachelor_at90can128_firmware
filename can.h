@@ -16,6 +16,7 @@
 struct CAN_frame {
 	uint32_t id; // 29 bits, 32 reserved
 	uint64_t msg; // 64 bits, 64 bits reserved
+	uint32_t dlc; //8 bits data length
 };
 
 extern QueueHandle_t Queue_CAN_Rx;

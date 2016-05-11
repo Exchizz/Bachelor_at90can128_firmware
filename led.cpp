@@ -46,11 +46,21 @@ void is_alive_task(uint8_t my_state){
 	CAN_frame frame;
 	if(QueueReceive(&Queue_CAN_Rx, &frame)) {
 		char ch;
+		/* MSG out uart0 */
+		/*
 		for(int i = 7; i >=0; i--){
 			ch = ((frame.msg >> i*8) & 0x00000000000000FF);
 			QueueSend(&Queue_Uart0_Tx,&ch);
 		}
+		*/
+		/* MSG end */
 
+		/* ID out uart0 */
+		for(int i = 3; i >=0; i--){
+			ch = ((frame.id >> i*8) & 0x000000FF);
+			QueueSend(&Queue_Uart0_Tx,&ch);
+		}
+		/* ID end*/
 		ch = '\r';
 		QueueSend(&Queue_Uart0_Tx,&ch);
 		ch = '\n';
