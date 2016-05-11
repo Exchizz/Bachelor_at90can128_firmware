@@ -102,9 +102,14 @@ void can_init(){
 	while((CANGSTA & (1<<ENFG)) != 0); /*wait for CAN controller to be enabled */
 
 	/* 250 kbits pr. sek */
-	CANBT1  = 0x06;
+	//CANBT1  = 0x06;
+	//CANBT2  = 0x04;
+	//CANBT3  = 0x13; // Page 368 http://www.atmel.com/images/doc7679.pdf
+
+	CANBT1  = 0x00;
 	CANBT2  = 0x04;
-	CANBT3  = 0x13; // Page 368 http://www.atmel.com/images/doc7679.pdf
+	CANBT3  = 0x12; // Page 368 http://www.atmel.com/images/doc7679.pdf
+
 
 	/* MOb 0 is used for Rx */
 	CANPAGE = (0<<MOBNB0);
