@@ -17,21 +17,7 @@ void can_rx_task(uint8_t my_state){
 		frame.id = 0;
 		frame.msg = 0;
 
-		uint32_t temp_id = 0;
-
-		temp_id = CANIDT4;
-		frame.id |= (temp_id >> 3);
-
-		temp_id = CANIDT3;
-		frame.id |= (temp_id << 5) ;
-
-		temp_id = CANIDT2;
-		frame.id |= (temp_id << 13);
-
-		temp_id = CANIDT1;
-		frame.id |= (temp_id << 21);
-
-		//frame.id = ( CANIDT4 >> 3 ) | ( CANIDT3 << 5 ) |  ( CANIDT2 << 8 ) | ( CANIDT1 << 8 ); // datasheet www.atmel.com/images/doc7679.pdf
+		frame.id = ((uint32_t)CANIDT4 >> 3) |  ((uint32_t)CANIDT3 << 5) | ((uint32_t)CANIDT2 << 13) | ((uint32_t)CANIDT1 << 21);
 
 		uint64_t temp = 0;
 		for(int i = 7; i >= 0; i--){
