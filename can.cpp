@@ -15,7 +15,7 @@ void can_rx_task(uint8_t my_state){
 
 		CAN_frame frame;
 		frame.id = 0;
-		frame.msg = 0;
+		frame.data = 0;
 		frame.dlc = 0;
 
 		frame.dlc = (CANCDMOB & 0x0F);
@@ -25,7 +25,7 @@ void can_rx_task(uint8_t my_state){
 		uint64_t temp = 0;
 		for(int i = (frame.dlc - 1); i >= 0; i--){
 			temp = CANMSG;
-			frame.msg |= (temp << i*8);
+			frame.data |= (temp << i*8);
 		}
 
 		QueueSend(&Queue_CAN_Rx, &frame);
@@ -40,28 +40,24 @@ void can_rx_task(uint8_t my_state){
 void can_tx_task(uint8_t my_state){
 	CAN_frame frame;
 	if(QueueReceive(&Queue_CAN_Tx, &frame)){
-		/* Unpack ID */
-//		CANIDT1
-		/* Unpack ID end */
-
-		/* Unpack data */
-		/* Unpack data end */
 		CANPAGE = (1<<MOBNB0);  /* select MOb 1 */
-		/* CANIDT is identifier tag */
+		/* Unpack ID */
 		CANIDT1 = ( (((uint32_t)frame.id) & 0x1FE00000) >> 21);
 		CANIDT2 = ( (((uint32_t)frame.id) & 0x001FE000) >> 13);
 		CANIDT3 = ( (((uint32_t)frame.id) & 0x00001FE0) >> 5);
 		CANIDT4 = ( (((uint32_t)frame.id) & 0x0000001F) << 3);
+		/* Unpack ID end */
 
-
-		CANMSG = ( (((uint64_t)frame.msg) & 0xFF00000000000000) >> 56);
-		CANMSG = ( (((uint64_t)frame.msg) & 0x00FF000000000000) >> 48);
-		CANMSG = ( (((uint64_t)frame.msg) & 0x0000FF0000000000) >> 40);
-		CANMSG = ( (((uint64_t)frame.msg) & 0x000000FF00000000) >> 32);
-		CANMSG = ( (((uint64_t)frame.msg) & 0x00000000FF000000) >> 24);
-		CANMSG = ( (((uint64_t)frame.msg) & 0x0000000000FF0000) >> 16);
-		CANMSG = ( (((uint64_t)frame.msg) & 0x000000000000FF00) >> 8);
-		CANMSG = ( (((uint64_t)frame.msg) & 0x00000000000000FF));
+		/* Unpack data */
+		CANMSG = ( (((uint64_t)frame.data) & 0xFF00000000000000) >> 56);
+		CANMSG = ( (((uint64_t)frame.data) & 0x00FF000000000000) >> 48);
+		CANMSG = ( (((uint64_t)frame.data) & 0x0000FF0000000000) >> 40);
+		CANMSG = ( (((uint64_t)frame.data) & 0x000000FF00000000) >> 32);
+		CANMSG = ( (((uint64_t)frame.data) & 0x00000000FF000000) >> 24);
+		CANMSG = ( (((uint64_t)frame.data) & 0x0000000000FF0000) >> 16);
+		CANMSG = ( (((uint64_t)frame.data) & 0x000000000000FF00) >> 8);
+		CANMSG = ( (((uint64_t)frame.data) & 0x00000000000000FF));
+		/* Unpack data end */
 
 		CANSTMOB = 0x00; /* clear all status flags */
 

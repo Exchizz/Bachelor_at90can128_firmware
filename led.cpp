@@ -48,11 +48,11 @@ void is_alive_task(uint8_t my_state){
 
 	}
 */
-	CAN_frame frame;
-	frame.id=0x1DEADBEF;
-	frame.msg=0xFEDCBA9876543210;
+	//CAN_frame frame;
+	//frame.id=0x1DEADBEF;
+	//frame.data=0xFEDCBA9876543210;
 
-	QueueSend(&Queue_CAN_Tx, &frame);
+	//QueueSend(&Queue_CAN_Tx, &frame);
 
 	switch(my_state){
 	case 0:

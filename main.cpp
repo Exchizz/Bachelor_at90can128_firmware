@@ -9,6 +9,7 @@
 #include "uart.h"
 #include "queue.h"
 #include "can.h"
+#include "AutoQuad.h"
 
 /* Task defines */
 #define TASK_IS_ALIVE    0
@@ -18,6 +19,7 @@
 #define TASK_UART1_RX    4
 #define TASK_CAN_RX		 5
 #define TASK_CAN_TX		 6
+#define TASK_AQ_NODE	 7
 /* Task defins end*/
 
 #define QUEUE_SIZE_UART 15
@@ -74,6 +76,9 @@ int main(){
 	// CAN
 	create_task(TASK_CAN_RX, can_rx_task);
 	create_task(TASK_CAN_TX, can_tx_task);
+
+	// Autoquad
+	create_task(TASK_AQ_NODE, aq_node_task);
 	/* Create tasks end*/
 
 	/* Run scheduler */
