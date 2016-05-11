@@ -17,9 +17,11 @@
 #define TASK_UART1_TX    3
 #define TASK_UART1_RX    4
 #define TASK_CAN_RX		 5
+#define TASK_CAN_TX		 6
 /* Task defins end*/
 
 #define QUEUE_SIZE_UART 15
+#define QUEUE_SIZE_CAN 6
 
 QueueHandle_t Queue_Uart0_Rx;
 QueueHandle_t Queue_Uart0_Tx;
@@ -29,6 +31,7 @@ QueueHandle_t Queue_Uart1_Rx;
 QueueHandle_t Queue_Uart1_Tx;
 
 QueueHandle_t Queue_CAN_Rx;
+QueueHandle_t Queue_CAN_Tx;
 
 int main(){
 	CLKPR = (1 << CLKPCE); // Enable change of CLKPS bits
@@ -41,7 +44,8 @@ int main(){
 	Queue_Uart1_Rx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
 	Queue_Uart1_Tx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
 
-	Queue_CAN_Rx   = QueueCreate(QUEUE_SIZE_UART, sizeof(CAN_frame));
+	Queue_CAN_Rx   = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
+	Queue_CAN_Tx   = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
 	/* Initialize queues end*/
 
 	/* Setup peripherals */
@@ -69,6 +73,7 @@ int main(){
 
 	// CAN
 	create_task(TASK_CAN_RX, can_rx_task);
+	create_task(TASK_CAN_TX, can_tx_task);
 	/* Create tasks end*/
 
 	/* Run scheduler */

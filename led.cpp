@@ -27,69 +27,42 @@ void led_init(){
 
 
 void is_alive_task(uint8_t my_state){
-	//UDR0 = my_state+'0';
-
-	//char msg_out[] = {"Alive\r\n"};
-	//for(int i = 0; i < 7; i++ ){
-	//	QueueSend(&Queue_Uart0_Tx, &msg_out[i]);
-	//}
-	//UDR0 = Queue_Uart0_Tx.elements+'0';
 /*
-	char ch;
-	if(QueueReceive(&Queue_Uart0_Rx, &ch)){
-		//INT_LED_ON_BLUE;
-		QueueSend(&Queue_Uart0_Tx,&ch);
-		//UDR0 = ch;
-	}
-	*/
-
 	CAN_frame frame;
 	if(QueueReceive(&Queue_CAN_Rx, &frame)) {
 		char ch;
-		/* ID out uart0 */
 
 		for(int i = 3; i >=0; i--){
 			ch = ((frame.id >> i*8) & 0x000000FF);
 			QueueSend(&Queue_Uart0_Tx,&ch);
 		}
 
-		/* MSG out uart0 */
 		for(int i = (frame.dlc-1); i >=0; i--){
 			ch = ((frame.msg >> i*8) & 0x00000000000000FF);
 			QueueSend(&Queue_Uart0_Tx,&ch);
 		}
-		/* MSG end */
-
-		/* ID end*/
 		ch = '\r';
 		QueueSend(&Queue_Uart0_Tx,&ch);
 		ch = '\n';
 		QueueSend(&Queue_Uart0_Tx,&ch);
 
 	}
+*/
+	CAN_frame frame;
+	frame.id=0x1DEADBEF;
+	frame.msg=0xFEDCBA9876543210;
+
+	QueueSend(&Queue_CAN_Tx, &frame);
 
 	switch(my_state){
 	case 0:
 		INT_LED_ON_GREEN;
-		//INT_LED_OFF_RED;
-		//INT_LED_OFF_BLUE;
 		set_state( 1 );
 		break;
 	case 1:
 		INT_LED_OFF_GREEN;
-		//INT_LED_ON_RED;
-		//INT_LED_OFF_BLUE;
 		set_state( 0 );
 		INT_RESET_HIGH;
-		break;
-	case 2:
-		INT_LED_OFF_GREEN;
-		INT_LED_OFF_RED;
-		INT_LED_ON_BLUE;
-		set_state( 0 );
-
-		INT_RESET_HIGH;
-
 		break;
 	}
 	wait( 1000 );

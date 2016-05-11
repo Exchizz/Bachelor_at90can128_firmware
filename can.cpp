@@ -37,6 +37,39 @@ void can_rx_task(uint8_t my_state){
 	/* restore the current MOb page */
 	CANPAGE = (CANPAGE & 0xF0)| canpage_bkp;
 }
+void can_tx_task(uint8_t my_state){
+	CAN_frame frame;
+	if(QueueReceive(&Queue_CAN_Tx, &frame)){
+		/* Unpack ID */
+//		CANIDT1
+		/* Unpack ID end */
+
+		/* Unpack data */
+		/* Unpack data end */
+		CANPAGE = (1<<MOBNB0);  /* select MOb 1 */
+		/* CANIDT is identifier tag */
+		CANIDT1 = ( (((uint32_t)frame.id) & 0x1FE00000) >> 21);
+		CANIDT2 = ( (((uint32_t)frame.id) & 0x001FE000) >> 13);
+		CANIDT3 = ( (((uint32_t)frame.id) & 0x00001FE0) >> 5);
+		CANIDT4 = ( (((uint32_t)frame.id) & 0x0000001F) << 3);
+
+
+		CANMSG = ( (((uint64_t)frame.msg) & 0xFF00000000000000) >> 56);
+		CANMSG = ( (((uint64_t)frame.msg) & 0x00FF000000000000) >> 48);
+		CANMSG = ( (((uint64_t)frame.msg) & 0x0000FF0000000000) >> 40);
+		CANMSG = ( (((uint64_t)frame.msg) & 0x000000FF00000000) >> 32);
+		CANMSG = ( (((uint64_t)frame.msg) & 0x00000000FF000000) >> 24);
+		CANMSG = ( (((uint64_t)frame.msg) & 0x0000000000FF0000) >> 16);
+		CANMSG = ( (((uint64_t)frame.msg) & 0x000000000000FF00) >> 8);
+		CANMSG = ( (((uint64_t)frame.msg) & 0x00000000000000FF));
+
+		CANSTMOB = 0x00; /* clear all status flags */
+
+		/* set data length & enable transmission in MOb ctrl & DLC register */
+		CANCDMOB = 8 | (0<<CONMOB1) | (1<<CONMOB0) | (1 << IDE);
+	}
+}
+
 void can_tx_msg(CAN_frame * frame){
 
 	CANPAGE = (1<<MOBNB0);  /* select MOb 1 */

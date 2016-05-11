@@ -20,9 +20,11 @@ struct CAN_frame {
 };
 
 extern QueueHandle_t Queue_CAN_Rx;
+extern QueueHandle_t Queue_CAN_Tx;
 
 void can_init();
 void can_tx_msg(CAN_frame * frame);
 void can_rx_task(uint8_t my_state);
+void can_tx_task(uint8_t my_state);
 
 #endif /* CAN_H_ */
