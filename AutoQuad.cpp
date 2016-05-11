@@ -44,8 +44,6 @@ void aq_node_task(uint8_t my_state){
 			if(messageCreater.mySession.packet_to_me(recv_frame)){
 				tx_frame = can_cmd(recv_frame);
 				QueueSend(&Queue_CAN_Tx, &tx_frame);
-			} else {
-
 			}
 
 			break;

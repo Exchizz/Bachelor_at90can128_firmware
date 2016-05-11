@@ -41,9 +41,9 @@ int main(){
 
 	/* Initialize queues */
 	Queue_Uart0_Rx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
-	Queue_Uart0_Tx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
+	Queue_Uart0_Tx = QueueCreate(100, sizeof(uint8_t));
 
-	Queue_Uart1_Rx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
+	Queue_Uart1_Rx = QueueCreate(100, sizeof(uint8_t));
 	Queue_Uart1_Tx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
 
 	Queue_CAN_Rx   = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
@@ -51,6 +51,7 @@ int main(){
 	/* Initialize queues end*/
 
 	/* Setup peripherals */
+	esp_init(ESP_NORMAL_MODE);
 	led_init();
 	can_init();
 	/* Setup peripherals end*/

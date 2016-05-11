@@ -39,6 +39,7 @@ uint8_t QueueSend(QueueHandle_t *queue, const void * dataIn){
 	}
 
 */
+	cli();
 	uint8_t wr_next = (queue->wr+1 )% queue->queuesize;
 
 	if(wr_next != queue->rd){
@@ -47,6 +48,7 @@ uint8_t QueueSend(QueueHandle_t *queue, const void * dataIn){
 		retval = 1;
 		queue->wr = wr_next;
 	}
+	sei();
 	return retval;
 }
 
@@ -63,6 +65,7 @@ uint8_t QueueReceive(QueueHandle_t *queue, void * dataOut){
 		retval = true;
 	}
 */
+	cli();
 	if(queue->wr != queue->rd || queue->elements > 0){
 		queue->elements--;
 		memcpy( dataOut, queue->mem+((queue->typesize)*(queue->rd)), queue->typesize);
@@ -72,6 +75,7 @@ uint8_t QueueReceive(QueueHandle_t *queue, void * dataOut){
 		//no items or queue full
 		retval = false;
 	}
+	sei();
 	return retval;
 }
 
