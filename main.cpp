@@ -10,8 +10,7 @@
 #include "queue.h"
 #include "can.h"
 #include "AutoQuad.h"
-#include "task.h"
-#include "slip/slip.h"
+#include "unpack_crc.h"
 
 /* Task defines */
 #define TASK_IS_ALIVE    0
@@ -62,10 +61,10 @@ int main(){
 	can_init();
 	/* Setup peripherals end*/
 
-	/* Initialize SLIP*/
+	/* Initialize SLIP and crc*/
 	slip_init();
 	crcInit();
-	/* Initialize SLIP end*/
+	/* Initialize SLIP and crc end*/
 
 	/* Setup Uart */
 	uart_init(USART_0);
