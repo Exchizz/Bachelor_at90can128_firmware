@@ -23,13 +23,13 @@ void scheduler_init(){
 void create_task(uint8_t task_id, void (*task_ptr)(uint8_t my_state)){
 	//If valid task_id
 	if (task_id < MAX_TASKS){
-		tasks[task_id].task_state = ST_TASK_RUN;
-		tasks[task_id].task_id = task_id;
-		tasks[task_id].task_ptr = task_ptr;
-		tasks[task_id].wait_counter = 1;
-		tasks[task_id].my_state = 0;
+		tasks[task_counter].task_state = ST_TASK_RUN;
+		tasks[task_counter].task_id = task_id;
+		tasks[task_counter].task_ptr = task_ptr;
+		tasks[task_counter].wait_counter = 1;
+		tasks[task_counter].my_state = 0;
 
-		//Increment task_counter;
+		//Increment task_counter
 		task_counter++;
 	}
 }

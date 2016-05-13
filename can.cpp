@@ -29,9 +29,9 @@ void can_rx_task(uint8_t my_state){
 		}
 
 		QueueSend(&Queue_CAN_Rx, &frame);
-		INT_LED_ON_BLUE;
+		//INT_LED_ON_BLUE;
 	} else {
-		INT_LED_OFF_BLUE;
+		//INT_LED_OFF_BLUE;
 	}
 	CANCDMOB = 8 | (1<<CONMOB1) | (1 << IDE); /* enable rx, max data length */
 	/* restore the current MOb page */

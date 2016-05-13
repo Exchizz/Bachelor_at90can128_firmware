@@ -7,6 +7,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 
 #ifndef AT90CAN_DEF_H_

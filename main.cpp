@@ -10,6 +10,8 @@
 #include "queue.h"
 #include "can.h"
 #include "AutoQuad.h"
+#include "task.h"
+#include "slip/slip.h"
 
 /* Task defines */
 #define TASK_IS_ALIVE    0
@@ -19,7 +21,8 @@
 #define TASK_UART1_RX    4
 #define TASK_CAN_RX		 5
 #define TASK_CAN_TX		 6
-#define TASK_AQ_NODE	 7
+#define TASK_AQ_NODE	 7 // Rename to sensor instead of node
+#define TASK_SLIP_CRC	 8
 /* Task defins end*/
 
 #define QUEUE_SIZE_UART 15
@@ -28,26 +31,29 @@
 QueueHandle_t Queue_Uart0_Rx;
 QueueHandle_t Queue_Uart0_Tx;
 
-
 QueueHandle_t Queue_Uart1_Rx;
 QueueHandle_t Queue_Uart1_Tx;
 
 QueueHandle_t Queue_CAN_Rx;
 QueueHandle_t Queue_CAN_Tx;
 
+QueueHandle_t Queue_msg_valid;
+
 int main(){
 	CLKPR = (1 << CLKPCE); // Enable change of CLKPS bits
 	CLKPR = (1 << CLKPS0) ; // Set prescaler to 2, system clock to 8 MHz as said in datasheet to at90can128
 
 	/* Initialize queues */
-	Queue_Uart0_Rx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
-	Queue_Uart0_Tx = QueueCreate(100, sizeof(uint8_t));
+	Queue_Uart0_Rx  = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
+	Queue_Uart0_Tx  = QueueCreate(100, sizeof(uint8_t));
 
-	Queue_Uart1_Rx = QueueCreate(100, sizeof(uint8_t));
-	Queue_Uart1_Tx = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
+	Queue_Uart1_Rx  = QueueCreate(100, sizeof(uint8_t));
+	Queue_Uart1_Tx  = QueueCreate(QUEUE_SIZE_UART, sizeof(uint8_t));
 
-	Queue_CAN_Rx   = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
-	Queue_CAN_Tx   = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
+	Queue_CAN_Rx    = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
+	Queue_CAN_Tx    = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
+
+	Queue_msg_valid = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
 	/* Initialize queues end*/
 
 	/* Setup peripherals */
@@ -55,6 +61,11 @@ int main(){
 	led_init();
 	can_init();
 	/* Setup peripherals end*/
+
+	/* Initialize SLIP*/
+	slip_init();
+	crcInit();
+	/* Initialize SLIP end*/
 
 	/* Setup Uart */
 	uart_init(USART_0);
@@ -80,6 +91,9 @@ int main(){
 
 	// Autoquad
 	create_task(TASK_AQ_NODE, aq_node_task);
+
+	// ESP8266 communication
+	create_task(TASK_SLIP_CRC, task_slip_decode_src_task);
 	/* Create tasks end*/
 
 	/* Run scheduler */

@@ -9,6 +9,7 @@
 #define TASK_H_
 #include "can.h"
 
-extern void counter_task(uint8_t my_id, uint8_t my_state, uint8_t event, uint8_t data);
+void task_slip_decode_src_task(uint8_t my_state);
 
+extern QueueHandle_t Queue_msg_valid;
 #endif /* TASK_H_ */

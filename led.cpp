@@ -8,6 +8,7 @@
 #include "led.h"
 #include "can.h"
 
+
 void led_init(){
 #ifdef FMCTRL
 	INT_LED_INIT;
@@ -53,10 +54,12 @@ void is_alive_task(uint8_t my_state){
 	//frame.data=0xFEDCBA9876543210;
 
 	//QueueSend(&Queue_CAN_Tx, &frame);
+/*
 	char ch;
 	while(QueueReceive(&Queue_Uart1_Rx, &ch)){
 		QueueSend(&Queue_Uart0_Tx,&ch);
 	}
+	*/
 	switch(my_state){
 	case 0:
 		INT_LED_ON_GREEN;

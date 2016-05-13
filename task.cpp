@@ -5,31 +5,98 @@
  *      Author: exchizz
  */
 
-
 #include "task.h"
+#include "slip/slip.h"
+#include "crc/crc.h"
 
-extern void counter_task(uint8_t my_id, uint8_t my_state, uint8_t event, uint8_t data){
-/*
-	static uint8_t counter = 0;
-	char string[] = "number: \n\r";
-	string[7] = counter++ + '0';
-	for(int i = 0; i < 10; i++){
-		put_queue( Q_UART_TX, string[i], WAIT_FOREVER );
-	}
-	wait(500);
-*/
-	//CAN_frame *frame;
-	//char temp = 0;
-	/*
-	if(get_can_frame_buffer(frame) == 1){
+/* global variables */
+unsigned char slip_in[SLIP_INBUF_LEN];
+int slip_in_ptr;
 
-		for(int i = 0; i < 8; i++){
-			temp = ( frame->msg >> i*8 ) & 0xFF;
-			//put_queue( Q_UART_TX, temp-'0', WAIT_FOREVER );
+/* local variables */
+static char slip_state;
+void task_slip_decode_src_task(uint8_t my_state){
+	char ch;
+	bool new_packet = false;
+	while(QueueReceive(&Queue_Uart1_Rx, &ch)) /* handle RX buffer */{
+		if (slip_state == SLIP_STATE_STD){
+			switch (ch){
+			case SLIP_END:
+				if (slip_in_ptr > -1)
+					new_packet = true;
+				break;
+
+			case SLIP_ESC:
+				slip_state = SLIP_STATE_ESC;
+				break;
+
+			case SLIP_ESC_END:
+				slip_in[++slip_in_ptr] = SLIP_END;
+				break;
+
+			case SLIP_ESC_ESC:
+				slip_in[++slip_in_ptr] = SLIP_ESC;
+				break;
+
+			default:
+				slip_in[++slip_in_ptr] = ch;
+				break;
+			}
+		} else{
+			/* handle ESC state */
+			switch(ch){
+			case SLIP_ESC_END:
+				slip_in[++slip_in_ptr] = SLIP_END;
+				break;
+			case SLIP_ESC_ESC:
+				slip_in[++slip_in_ptr] = SLIP_ESC;
+				break;
+			}
+
+			slip_state = SLIP_STATE_STD;
 		}
-		//put_queue( Q_UART_TX, '\r', WAIT_FOREVER );
-		//put_queue( Q_UART_TX, '\n', WAIT_FOREVER );
-	} else {
 	}
-*/
+
+	/* handle buffer overflow */
+	if (slip_in_ptr == SLIP_INBUF_LEN){
+		slip_in_ptr = -1;
+		new_packet = false;
+	}
+
+	if(new_packet){
+		unsigned short crc_val, crc_check;
+		crc_val = (slip_in[slip_in_ptr-1] << 8) | slip_in[slip_in_ptr];
+		crc_check = crcFast(slip_in, slip_in_ptr-1);
+		//char crc_ok[] = "CRC OK\r\n";
+		for(int i = 0; i < slip_in_ptr; i++){
+			QueueSend(&Queue_Uart0_Tx,&slip_in[i]);
+		}
+		slip_state = SLIP_STATE_STD;
+		slip_in_ptr = -1;
+		char ch = '\n';
+		QueueSend(&Queue_Uart0_Tx,&ch);
+
+
+		if (crc_val == crc_check){
+			char crc_ok[] = "CRC OK\r\n";
+			for(int i = 0; i < 8; i++){
+				QueueSend(&Queue_Uart0_Tx,&crc_ok[i]);
+			}
+		} else {
+			char crc_no[] = "CRC NO\r\n";
+			for(int i = 0; i < 8; i++){
+				QueueSend(&Queue_Uart0_Tx,&crc_no[i]);
+			}
+		}
+	}
+	//return new_packet;
 }
+
+/***************************************************************************/
+void slip_init (void)
+{
+	slip_state = SLIP_STATE_STD;
+	slip_in_ptr = -1;
+}
+/***************************************************************************/
+

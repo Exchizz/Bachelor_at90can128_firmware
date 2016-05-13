@@ -39,7 +39,7 @@ ISR (USART1_RX_vect){
 void uart1_rx_task(uint8_t my_state){
 
 	//If data available in uart0-buffer
-	if( UCSR1A & (1 << RXC1) ){
+	while( UCSR1A & (1 << RXC1) ){
 		char ch = UDR1;
 		QueueSend(&Queue_Uart1_Rx, &ch);
 	}
