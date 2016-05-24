@@ -12,6 +12,7 @@
 #include "can.h"
 #include "Session.h"
 #include <stdint.h>
+#include "AutoQuad.h"
 // Function ID (Substract 3 due to ARM's way of prepending status flags)
 #define CAN_FID_MASK        (((uint32_t)0xf) << (25-3 ))
 
@@ -117,7 +118,11 @@ public:
 	CAN_frame Create_ReqAddr(uint8_t,uint8_t);
 	CAN_frame Create_SendACK();
 	Session mySession;
-	CAN_frame Create_Stream(double,uint8_t);
+	CAN_frame Create_Stream_double(uint8_t* value, uint8_t doc);
+	CAN_frame Create_Stream_VEL(int16_t velN, int16_t velE, int16_t velD, int16_t speed, uint8_t doc);
+	CAN_frame Create_Stream_DOP(uint8_t pDOP, uint8_t hDOP, uint8_t vDOP, uint8_t tDOP, uint8_t nDOP, uint8_t eDOP, uint8_t gDOP, uint8_t doc);
+	CAN_frame Create_Stream_ACC(uint8_t satellites, uint8_t fix, uint8_t sAcc, uint8_t cAcc, uint8_t hAcc, uint8_t vAcc, int16_t heading, uint8_t doc);
+	CAN_frame Create_Stream_int(uint8_t *value, uint8_t doc);
 private:
 	uint8_t uuid[4];
 };

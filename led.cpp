@@ -28,6 +28,7 @@ void led_init(){
 
 
 void is_alive_task(uint8_t my_state){
+
 /*
 	CAN_frame frame;
 	if(QueueReceive(&Queue_CAN_Rx, &frame)) {

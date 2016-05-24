@@ -22,10 +22,12 @@
 #define TASK_CAN_TX		 6
 #define TASK_AQ_NODE	 7 // Rename to sensor instead of node
 #define TASK_SLIP_CRC	 8
+#define TASK_AQ_SPOOF    9
 /* Task defins end*/
 
 #define QUEUE_SIZE_UART 15
-#define QUEUE_SIZE_CAN 6
+#define QUEUE_SIZE_CAN 15 // Enough messages to keep lat, lon, dop, fix, satellites, height
+#define QUEUE_SIZE_GPS_POSE 5
 
 QueueHandle_t Queue_Uart0_Rx;
 QueueHandle_t Queue_Uart0_Tx;
@@ -36,7 +38,10 @@ QueueHandle_t Queue_Uart1_Tx;
 QueueHandle_t Queue_CAN_Rx;
 QueueHandle_t Queue_CAN_Tx;
 
-QueueHandle_t Queue_msg_valid;
+QueueHandle_t Queue_gps_pose;
+
+
+crc_t crc;
 
 int main(){
 	CLKPR = (1 << CLKPCE); // Enable change of CLKPS bits
@@ -52,7 +57,7 @@ int main(){
 	Queue_CAN_Rx    = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
 	Queue_CAN_Tx    = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
 
-	Queue_msg_valid = QueueCreate(QUEUE_SIZE_CAN, sizeof(CAN_frame));
+	Queue_gps_pose  = QueueCreate(QUEUE_SIZE_GPS_POSE, sizeof(GPS));
 	/* Initialize queues end*/
 
 	/* Setup peripherals */
@@ -63,7 +68,6 @@ int main(){
 
 	/* Initialize SLIP and crc*/
 	slip_init();
-	crcInit();
 	/* Initialize SLIP and crc end*/
 
 	/* Setup Uart */
@@ -92,7 +96,11 @@ int main(){
 	create_task(TASK_AQ_NODE, aq_node_task);
 
 	// ESP8266 communication
-	create_task(TASK_SLIP_CRC, task_slip_decode_src_task);
+	create_task(TASK_SLIP_CRC, task_slip_decode_crc_task);
+
+
+	// AutoQuad spoof
+	create_task(TASK_AQ_SPOOF, aq_spoof_task);
 	/* Create tasks end*/
 
 	/* Run scheduler */

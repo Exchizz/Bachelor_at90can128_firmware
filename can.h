@@ -17,6 +17,7 @@ struct CAN_frame {
 	uint32_t id; // 29 bits, 32 reserved
 	uint64_t data; // 64 bits, 64 bits reserved
 	uint8_t dlc; //8 bits data length
+
 	CAN_frame(){
 		id = 0;
 		data = 0;

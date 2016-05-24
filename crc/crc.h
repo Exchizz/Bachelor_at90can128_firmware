@@ -1,77 +1,82 @@
-/**********************************************************************
+/**
+ * \file crc.h
+ * Functions and types for CRC checks.
  *
- * Filename:    crc.h
- * 
- * Description: A header file describing the various CRC standards.
- *
- * Notes:       
- *
- * 
- * Copyright (c) 2000 by Michael Barr.  This software is placed into
- * the public domain and may be used for any purpose.  However, this
- * notice must not be changed or removed and no warranty is either
- * expressed or implied by its publication or distribution.
- **********************************************************************/
+ * Generated on Sat May 14 22:05:00 2016,
+ * by pycrc v0.9, https://pycrc.org
+ * using the configuration:
+ *    Width         = 16
+ *    Poly          = 0x8005
+ *    Xor_In        = 0x0000
+ *    ReflectIn     = True
+ *    Xor_Out       = 0x0000
+ *    ReflectOut    = True
+ *    Algorithm     = table-driven
+ *****************************************************************************/
+#ifndef __CRC_H__
+#define __CRC_H__
 
-#ifndef _crc_h
-#define _crc_h
+#include <stdlib.h>
+#include <stdint.h>
 
-
-#define FALSE	0
-#define TRUE	!FALSE
-
-/*
- * Select the CRC standard from the list that follows.
- */
-#define CRC16
-
-
-#if defined(CRC_CCITT)
-
-typedef unsigned short  crc;
-
-#define CRC_NAME			"CRC-CCITT"
-#define POLYNOMIAL			0x1021
-#define INITIAL_REMAINDER	0xFFFF
-#define FINAL_XOR_VALUE		0x0000
-#define REFLECT_DATA		FALSE
-#define REFLECT_REMAINDER	FALSE
-#define CHECK_VALUE			0x29B1
-
-#elif defined(CRC16)
-
-typedef unsigned short  crc;
-
-#define CRC_NAME			"CRC-16"
-#define POLYNOMIAL			0x8005
-#define INITIAL_REMAINDER	0x0000
-#define FINAL_XOR_VALUE		0x0000
-#define REFLECT_DATA		TRUE
-#define REFLECT_REMAINDER	TRUE
-#define CHECK_VALUE			0xBB3D
-
-#elif defined(CRC32)
-
-typedef unsigned long  crc;
-
-#define CRC_NAME			"CRC-32"
-#define POLYNOMIAL			0x04C11DB7
-#define INITIAL_REMAINDER	0xFFFFFFFF
-#define FINAL_XOR_VALUE		0xFFFFFFFF
-#define REFLECT_DATA		TRUE
-#define REFLECT_REMAINDER	TRUE
-#define CHECK_VALUE			0xCBF43926
-
-#else
-
-#error "One of CRC_CCITT, CRC16, or CRC32 must be #define'd."
-
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 
-void  crcInit(void);
-crc   crcSlow(unsigned char const message[], int nBytes);
-crc   crcFast(unsigned char const message[], int nBytes);
+/**
+ * The definition of the used algorithm.
+ *
+ * This is not used anywhere in the generated code, but it may be used by the
+ * application code to call algoritm-specific code, is desired.
+ *****************************************************************************/
+#define CRC_ALGO_TABLE_DRIVEN 1
 
 
-#endif /* _crc_h */
+/**
+ * The type of the CRC values.
+ *
+ * This type must be big enough to contain at least 16 bits.
+ *****************************************************************************/
+typedef uint_fast16_t crc_t;
+
+
+/**
+ * Calculate the initial crc value.
+ *
+ * \return     The initial crc value.
+ *****************************************************************************/
+static inline crc_t crc_init(void)
+{
+    return 0x0000;
+}
+
+
+/**
+ * Update the crc value with new data.
+ *
+ * \param crc      The current crc value.
+ * \param data     Pointer to a buffer of \a data_len bytes.
+ * \param data_len Number of bytes in the \a data buffer.
+ * \return         The updated crc value.
+ *****************************************************************************/
+crc_t crc_update(crc_t crc, void *data, size_t data_len);
+
+
+/**
+ * Calculate the final crc value.
+ *
+ * \param crc  The current crc value.
+ * \return     The final crc value.
+ *****************************************************************************/
+static inline crc_t crc_finalize(crc_t crc)
+{
+    return crc ^ 0x0000;
+}
+
+
+#ifdef __cplusplus
+}           /* closing brace for extern "C" */
+#endif
+
+#endif      /* __CRC_H__ */
